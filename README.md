@@ -67,6 +67,16 @@ It seems that Docker is supported only by Windows 10 pro edition. The official d
 [Docker](https://docs.docker.com/install/)
 
 ### Create the docker containers
+
+*Wrapper Script*
+Since the unification of the nginx and apache codelines, a wrapper script needs to be used to simplify expresso-php usage.
+Syntax as follows:
+``
+./expresso-php <stack> <action>
+``
+Run the said script to see the specific values of both 'stack' and 'action'.
+
+*Steps*
 1. Download this project and rename the folder according to your project.
 A good practice is to create a folder called "docker" in your home directory, this is where you will keep all your docker projects. In command line, this would be:
 ```
@@ -76,12 +86,8 @@ $ git clone https://github.com/expresso-php/expresso-php.git myproject
 ```
 2. Create the Expresso PHP containers for your project:
 ```
-$ docker-compose up -d
+$ ./expresso-php <stack> start
 ```
-This is only for the first time, to create the containers. Next time you can just start them with:
-``
-$ docker start
-``
 3. Check which port is Nginx using with:
 ```
 $ docker ps
@@ -112,27 +118,27 @@ $ ln -s myproject/docroot web
 ## Useful commands
 To start Expresso PHP:
 ```
-$ docker-compose start
+$ ./expresso-php <stack> start
 ```
 
 To stop Expresso PHP:
 ```
-$ docker-compose stop
+$ ./expresso-php <stack> stop
 ```
 
 To SSH the containers
 ```
-$ docker-compose exec php_nginx /bin/bash
+$ docker exec -it <container_name> /bin/bash
 ```
 
 Drush (command line tool for Drupal)
 ```
-$  docker-compose exec php_nginx drush help
+$  docker exec -it <container_name> drush help
 ```
 
 Import database with Drupal and Drush
 ```
-$  docker-compose run --rm php_nginx bash -c '$(drush sql-connect)' < my_database.sql
+$  docker run --rm <container_name> bash -c '$(drush sql-connect)' < my_database.sql
 ```
 
 ### Database credentials
@@ -148,5 +154,5 @@ To access PhpMyAdmin, run `docker ps` to get its dynamic port.
 * Password: root
 
 ## SOLR Integration
-To enable SOLR, uncomment corresponding lines from docker-compose.yml file.
+To enable SOLR, use the <stack> with an 's' at the end: 'lamps' or 'lemps'.
 SOLR can be accessed in [local-domain]:8983/solr/#/ ( e.g. http://192.168.99.100:8983/solr/#/ )
