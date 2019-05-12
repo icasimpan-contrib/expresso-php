@@ -1,0 +1,12 @@
+version: '2'
+services:
+  nginx:
+    build: ../docker/nginx
+    ports:
+      - 80
+    volumes:
+      - ..:/var/www
+  php_nginx:
+    build: ../docker/php_nginx
+    volumes:
+      - ..:/var/www

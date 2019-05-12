@@ -1,0 +1,6 @@
+version: '2'
+services:
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - 8025

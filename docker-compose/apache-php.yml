@@ -1,0 +1,8 @@
+version: '2'
+services:
+  php_apache:
+    build: ../docker/php_apache
+    ports:
+      - 80
+    volumes:
+      - ..:/var/www

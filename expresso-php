@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+
+BASE_DIR=$(cd "$(dirname "$0")"; pwd)/docker-compose
+
+stack=$1   ## options: lamp, lamps, lemp, lemps
+action=$2  ## start, stop, recreate
+
+show_syntax() {
+ [[ "$@" = "" ]] && ERR_STR='Missing parameter(s).' || ERR_STR="$@"
+
+  echo "ERROR: $ERR_STR
+Usage: expresso-php <stack> <action>
+  where:
+    > stack - either of the following:
+                * lamp  - lamp without solr 
+                * lemp  - lemp without solr 
+                * lamps - lamp with solr 
+                * lemps - lamp with solr 
+              NOTE: lamp = Linux, Apache, MariaDB
+                    lemp = Linux, Nginx, MariaDB
+              All stack comes with phpmyadmin and mailhog
+
+    > action - either of the following applied to docker-compose:
+                * start    - 'up -d'
+                * stop     - 'down'
+                * recreate - 'up --build -d'
+"
+} ## END: show_syntax()
+
+## -------------------------------
+## stack: lamp, lamps, lemp, lemps
+##  * lamp  => lamp without solr
+##  * lamps => lamp with solr
+##  * lemp  => lemp without solr
+##  * lemps => lemp with solr
+## -------------------------------
+case $stack in
+     lamp)
+       config_files="-f $BASE_DIR/apache-php.yml -f $BASE_DIR/mariadb.yml"
+     ;;
+     lamps)
+       config_files="-f $BASE_DIR/apache-php.yml -f $BASE_DIR/mariadb.yml -f $BASE_DIR/solr.yml"
+     ;;
+     lemp)
+       config_files="-f $BASE_DIR/nginx-php.yml -f $BASE_DIR/mariadb.yml"
+     ;;
+     lemps)
+       config_files="-f $BASE_DIR/nginx-php.yml -f $BASE_DIR/mariadb.yml -f $BASE_DIR/solr.yml"
+     ;;
+     *)
+       show_syntax "invalid/unknown stack."
+       exit 1
+     ;;
+esac
+
+## -------------------------------
+## action: start, stop, recreate
+##  * start    => 'up -d'
+##  * stop     => 'down'
+##  * recreate => 'up --build -d'
+## -------------------------------
+case $action in
+       start)
+         act_this='up -d'
+       ;;
+       ##
+       ## // END: 'start' action
+       ## ----------------------- 
+       stop)
+         act_this='down'
+
+         ## Ensure solr is stopped (when it's running) to avoid errors.
+         ##
+         i=$((${#stack}-1))
+         check_solr_mention="${stack:$i:1}" ## check last character of $stack, if 's' (meaning, solr)
+
+         webserver_type="${stack:1:1}"
+         solr_running=$(docker ps | grep -c solr)
+
+         case $solr_running in
+                 ##
+                 ## solr running 
+                 ## ------------
+                 1)
+                   solr_running_notation='s'
+                   [[ "$check_solr_mention" != "s" ]] && { 
+                       show_syntax "solr running, so use 'l${webserver_type}mps' stack instead."; 
+                       exit 1; 
+                   }
+                 ;;
+                 ##
+                 ## solr NOT running 
+                 ## ----------------
+                 0)
+                   solr_running_notation=''
+                   [[ "$check_solr_mention" == "s" ]] && { 
+                       show_syntax "solr isn't running, so use 'l${webserver_type}mp' stack instead.";
+                       exit 1; 
+                   }
+                 ;;
+         esac
+         ## // END: Ensure solr is stopped (when it's running) to avoid errors.
+
+         ## Ensure correct webserver is stopped
+         ##
+         nginx_running=$( docker ps | grep -c nginx)
+         apache_running=$(docker ps | grep -c apache)
+
+         case $webserver_type in
+                 ##
+                 ## nginx running
+                 ## ----------------
+                 e)
+                   [[ $apache_running -eq 1 ]] && {
+                      show_syntax " apache running, so use 'lamp${solr_running_notation}' stack instead."
+                   }
+                 ;;
+                 ## 
+                 ## apache running
+                 ## ----------------
+                 a)
+                   [[ $nginx_running -eq 1 ]] && {
+                      show_syntax " nginx running, so use 'lemp${solr_running_notation}' stack instead."
+                   }
+                 ;;
+         esac
+         ## // END: Ensure correct webserver is stopped
+       ;;
+       ##
+       ## // END: 'stop' action
+       ## ----------------------- 
+       recreate)
+         act_this='up --build -d'
+       ;;
+       *)
+         show_syntax "invalid/unknown action."
+         exit 1
+       ;;
+esac 
+
+## ------------------------
+## MAIN() --> script start
+## ------------------------
+
+## Show syntax when no parameter or less than required number is given
+##
+[[ $# -lt 2 ]] && { show_syntax; exit 1; }
+
+## ...no errors, run now.
+##
+docker-compose $config_files $act_this
