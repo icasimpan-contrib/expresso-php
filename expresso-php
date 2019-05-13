@@ -22,7 +22,7 @@ Usage: expresso-php <stack> <action>
 
     > action - either of the following applied to docker-compose:
                 * start    - 'up -d'
-                * stop     - 'down'
+                * stop     - 'stop'
                 * recreate - 'up --build -d'
 "
 } ## END: show_syntax()
@@ -56,7 +56,7 @@ esac
 ## -------------------------------
 ## action: start, stop, recreate
 ##  * start    => 'up -d'
-##  * stop     => 'down'
+##  * stop     => 'stop'
 ##  * recreate => 'up --build -d'
 ## -------------------------------
 case $action in
@@ -67,7 +67,7 @@ case $action in
        ## // END: 'start' action
        ## ----------------------- 
        stop)
-         act_this='down'
+         act_this='stop'
 
          ## Ensure solr is stopped (when it's running) to avoid errors.
          ##
