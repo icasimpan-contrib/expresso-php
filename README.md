@@ -100,14 +100,6 @@ It seems that Docker is supported only by Windows 10 pro edition. The official d
 
 ### Create the docker containers
 
-*Wrapper Script*
-Since the unification of the nginx and apache codelines, a wrapper script needs to be used to simplify expresso-php usage.
-Syntax as follows:
-``
-./expresso-php <stack> <action>
-``
-Run the said script to see the specific values of both 'stack' and 'action'.
-
 *Steps*
 1. Download this project and rename the folder according to your project.
 A good practice is to create a folder called "docker" in your home directory, this is where you will keep all your docker projects. In command line, this would be:
@@ -136,9 +128,9 @@ aec749aa1ed5        phpmyadmin/phpmyadmin   "/run.sh supervisord…"   19 second
 60f40b270854        epdev_nginx             "nginx -g 'daemon of…"   19 seconds ago      Up 17 seconds       0.0.0.0:32867->80/tcp             epdev_nginx_1
 0e7bb2c23c9e        solr                    "docker-entrypoint.s…"   19 seconds ago      Up 17 seconds       0.0.0.0:8983->8983/tcp            epdev_solr_1
 ```
-which in this case is "32868".
+which in this case is "32867".
 
-That's it! Visit http://localhost:32868 (replace 32868 with your application's port) or http://192.168.99.100:32868 (if you use a VM like [dinghy](https://github.com/codekitchen/dinghy)).
+That's it! Visit http://localhost:32867 (replace 32867 with your application's port) or http://192.168.99.100:32867 (if you use a VM like [dinghy](https://github.com/codekitchen/dinghy)).
 
 ### Place your files in web.
 Expresso PHP will be looking for PHP files placed into the folder web.
