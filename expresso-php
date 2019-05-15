@@ -142,7 +142,7 @@ case $action in
        ##
        ## // END: 'stop' action
        ## ----------------------- 
-       recreate)
+       recreate | rebuild)
          act_this='up --build -d'
        ;;
        ##
