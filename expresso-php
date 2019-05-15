@@ -5,6 +5,11 @@ BASE_DIR=$(cd "$(dirname "$0")"; pwd)/docker-compose
 stack=$1   ## options: lamp, lamps, lemp, lemps
 action=$2  ## start, stop, recreate
 
+## Docker namespace for entire expresso-php
+##
+this_namespace=epdev
+
+
 show_syntax() {
  [[ "$@" = "" ]] && ERR_STR='Missing parameter(s).' || ERR_STR="$@"
 
@@ -75,7 +80,7 @@ case $action in
          check_solr_mention="${stack:$i:1}" ## check last character of $stack, if 's' (meaning, solr)
 
          webserver_type="${stack:1:1}"
-         solr_running=$(docker ps | grep -c solr)
+         solr_running=$(docker ps | grep -c "${this_namespace}_solr_*")
 
          case $solr_running in
                  ##
@@ -103,8 +108,8 @@ case $action in
 
          ## Ensure correct webserver is stopped
          ##
-         nginx_running=$( docker ps | grep -c nginx)
-         apache_running=$(docker ps | grep -c apache)
+         nginx_running=$( docker ps | grep -c "${this_namespace}_php_nginx_*")
+         apache_running=$(docker ps | grep -c "${this_namespace}_php_apache_*")
 
          case $webserver_type in
                  ##
@@ -132,6 +137,9 @@ case $action in
        recreate)
          act_this='up --build -d'
        ;;
+       ##
+       ## // END: 'recreate' action
+       ## -------------------------
        *)
          show_syntax "invalid/unknown action."
          exit 1
@@ -148,4 +156,4 @@ esac
 
 ## ...no errors, run now.
 ##
-docker-compose $config_files $act_this
+docker-compose -p $this_namespace $config_files $act_this
