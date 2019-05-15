@@ -29,6 +29,7 @@ Usage: expresso-php <stack> <action>
                 * start    - 'up -d'
                 * stop     - 'stop'
                 * recreate - 'up --build -d'
+                * clean    - 'down -v'
 "
 } ## END: show_syntax()
 
@@ -63,6 +64,7 @@ esac
 ##  * start    => 'up -d'
 ##  * stop     => 'stop'
 ##  * recreate => 'up --build -d'
+##  * clean    => 'down -v'
 ## -------------------------------
 case $action in
        start)
@@ -139,6 +141,12 @@ case $action in
        ;;
        ##
        ## // END: 'recreate' action
+       ## -------------------------
+       clean)
+         act_this='down -v'
+       ;;
+       ##
+       ## // END: 'clean' action
        ## -------------------------
        *)
          show_syntax "invalid/unknown action."
