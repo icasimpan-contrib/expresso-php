@@ -8,20 +8,43 @@ Tested with:
 * Wordpress
 * Laravel
 
-We won't force you to download our own images. Eveything is done using the official images of PHP, Nginx ... etc.
+We won't force you to download our own images. Everything is done using the official images of PHP, Nginx ... etc.
 
-## In this branch: Nginx + PHP + friends
+## LAMP or LEMP + friends
 
 What's included:
-
+  - Apache
   - Nginx
   - PHP
-  - Mariadb
+  - MariaDB
   - PhpMyAdmin
   - Mailhog
+  - Solr
 
 All using on official images.
-Check the other branch of this repo for Apache + PHP.
+
+### Simplified Usage
+A wrapper script named 'expresso-php' can now be used with the following syntax:
+
+```
+Usage: expresso-php <stack> <action>
+  where:
+    > stack - either of the following:
+                * lamp  - lamp without solr
+                * lemp  - lemp without solr
+                * lamps - lamp with solr
+                * lemps - lamp with solr
+              NOTE: lamp = Linux, Apache, MariaDB
+                    lemp = Linux, Nginx, MariaDB
+              All stack comes with phpmyadmin and mailhog
+
+    > action - except for 'status' either of the following applied to docker-compose:
+                * start    - 'up -d'
+                * stop     - 'stop'
+                * recreate - 'up --build -d'
+                * clean    - 'down -v'
+                * status   - 'docker ps -a -f name=epdev'
+```
 
 ### Official containers only
 We won't force you to download our own images.
@@ -29,18 +52,27 @@ All of this is based on officials containers, so you won't download any specific
 
 All you have all the options available as soon as they are released on Docker Hub by PHP, Nginx, Apache ... etc.
 
+### PHP Dockerfile
+You have two PHP Dockerfile, depending on web server used.
+* docker/php_apache/Dockerfile - for Apache
+* docker/php_nginx/Dockerfile - for Nginx
+It's important to note that only one web server can be active at a time.
+
 ### PHP 7.0? PHP 7.1? or PHP 5.6?
 You can switch between the latest release of PHP 7 or the latest of PHP 5, by
-changing the first line of the file "docker/php/Dockerfile". For the latest version of PHP 5:
+changing the first line of the PHP Dockerfile. For the latest version of PHP 5:
 ```
 FROM php:5-fpm
 ```
 
-Extra PHP librairies?
-Check the same file: docker/php/Dockerfile
-You can add your own librairies.
+Extra PHP libraries?
+Check the same PHP Dockerfile
+You can add your own libraries.
 
-Everytime you change a dockerfile (example "docker/php/Dockerfile"), you need to rebuild your containers with the docker compose command "build --no-cache --force" and run again "composer up -d".
+Everytime you change a dockerfile (example "docker/php_nginx/Dockerfile"), you need to rebuild or recreate your containers as follows:
+```
+ ~$ ./expresso-php <stack> recreate
+```
 
 ### More PHP versions?
 This project uses the official images from PHP, see all available options on: [PHP's official Docker Hub page](https://hub.docker.com/_/php/).
@@ -90,11 +122,23 @@ $ ./expresso-php <stack> start
 ```
 3. Check which port is Nginx using with:
 ```
-$ docker ps
+$ ./expresso-php <stack> status
 ```
-Look for a line with the port number. For example: "myproject_nginx_1        nginx -g daemon off;            Up      0.0.0.0:**32770**->80/tcp", in this case "32770" is my port number.
 
-That's it! Visit http://localhost:32770 (replace 32770 with your application's port) or http://192.168.99.100:32770 (if you use a VM like [dinghy](https://github.com/codekitchen/dinghy)).
+In the example output below, look for the nginx line that maps to port 80:
+
+```
+$ ./expresso-php lemps status
+CONTAINER ID        IMAGE                   COMMAND                  CREATED             STATUS              PORTS                             NAMES
+5ea212a4c1f5        epdev_php_nginx         "docker-php-entrypoi…"   19 seconds ago      Up 17 seconds       9000/tcp                          epdev_php_nginx_1
+dd4be0b7efd0        mariadb                 "docker-entrypoint.s…"   19 seconds ago      Up 17 seconds       3306/tcp                          epdev_db_1
+aec749aa1ed5        phpmyadmin/phpmyadmin   "/run.sh supervisord…"   19 seconds ago      Up 17 seconds       9000/tcp, 0.0.0.0:32868->80/tcp   epdev_phpmyadmin_1
+60f40b270854        epdev_nginx             "nginx -g 'daemon of…"   19 seconds ago      Up 17 seconds       0.0.0.0:32867->80/tcp             epdev_nginx_1
+0e7bb2c23c9e        solr                    "docker-entrypoint.s…"   19 seconds ago      Up 17 seconds       0.0.0.0:8983->8983/tcp            epdev_solr_1
+```
+which in this case is "32868".
+
+That's it! Visit http://localhost:32868 (replace 32868 with your application's port) or http://192.168.99.100:32868 (if you use a VM like [dinghy](https://github.com/codekitchen/dinghy)).
 
 ### Place your files in web.
 Expresso PHP will be looking for PHP files placed into the folder web.
@@ -124,6 +168,12 @@ $ ./expresso-php <stack> start
 To stop Expresso PHP:
 ```
 $ ./expresso-php <stack> stop
+```
+
+To switch from using Nginx to Apache:
+```
+$ ./expresso-php lemp clean
+$ ./expresso-php lamp start
 ```
 
 To SSH the containers
