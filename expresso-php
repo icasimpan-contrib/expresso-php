@@ -2,8 +2,8 @@
 
 BASE_DIR=$(cd "$(dirname "$0")"; pwd)/docker-compose
 
-stack=$1   ## options: lamp, lamps, lemp, lemps
-action=$2  ## start, stop, recreate
+action=$1  ## start, stop, recreate
+stack=$2   ## options: lamp, lamps, lemp, lemps
 
 ## $raw_docker - flag variable if 'action' is to be run in 'docker'
 ##               and NOT 'docker-compose' (default)
@@ -18,8 +18,15 @@ show_syntax() {
  [[ "$@" = "" ]] && ERR_STR='Missing parameter(s).' || ERR_STR="$@"
 
   echo "ERROR: $ERR_STR
-Usage: expresso-php <stack> <action>
+Usage: expresso-php <action> <stack>
   where:
+    > action - except for 'status' either of the following applied to docker-compose:
+                * start    - 'up -d'
+                * stop     - 'stop'
+                * recreate - 'up --build -d'
+                * clean    - 'down -v'
+                * status   - 'docker ps -a -f name="$this_namespace"'
+
     > stack - either of the following:
                 * lamp  - lamp without solr 
                 * lemp  - lemp without solr 
@@ -28,13 +35,6 @@ Usage: expresso-php <stack> <action>
               NOTE: lamp = Linux, Apache, MariaDB
                     lemp = Linux, Nginx, MariaDB
               All stack comes with phpmyadmin and mailhog
-
-    > action - except for 'status' either of the following applied to docker-compose:
-                * start    - 'up -d'
-                * stop     - 'stop'
-                * recreate - 'up --build -d'
-                * clean    - 'down -v'
-                * status   - 'docker ps -a -f name="$this_namespace"'
 "
 } ## END: show_syntax()
 

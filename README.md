@@ -27,8 +27,15 @@ All using on official images.
 A wrapper script named 'expresso-php' can now be used with the following syntax:
 
 ```
-Usage: expresso-php <stack> <action>
+Usage: expresso-php <action> <stack>
   where:
+    > action - except for 'status' either of the following applied to docker-compose:
+                * start    - 'up -d'
+                * stop     - 'stop'
+                * recreate - 'up --build -d'
+                * clean    - 'down -v'
+                * status   - 'docker ps -a -f name=epdev'
+
     > stack - either of the following:
                 * lamp  - lamp without solr
                 * lemp  - lemp without solr
@@ -37,13 +44,6 @@ Usage: expresso-php <stack> <action>
               NOTE: lamp = Linux, Apache, MariaDB
                     lemp = Linux, Nginx, MariaDB
               All stack comes with phpmyadmin and mailhog
-
-    > action - except for 'status' either of the following applied to docker-compose:
-                * start    - 'up -d'
-                * stop     - 'stop'
-                * recreate - 'up --build -d'
-                * clean    - 'down -v'
-                * status   - 'docker ps -a -f name=epdev'
 ```
 
 ### Official containers only
@@ -71,7 +71,7 @@ You can add your own libraries.
 
 Everytime you change a dockerfile (example "docker/php_nginx/Dockerfile"), you need to rebuild or recreate your containers as follows:
 ```
- ~$ ./expresso-php <stack> recreate
+ ~$ ./expresso-php recreate <stack>
 ```
 
 ### More PHP versions?
@@ -110,11 +110,11 @@ $ git clone https://github.com/expresso-php/expresso-php.git myproject
 ```
 2. Create the Expresso PHP containers for your project:
 ```
-$ ./expresso-php <stack> start
+$ ./expresso-php start <stack>
 ```
 3. Check which port is Nginx using with:
 ```
-$ ./expresso-php <stack> status
+$ ./expresso-php status <stack>
 ```
 
 In the example output below, look for the nginx line that maps to port 80:
@@ -154,18 +154,18 @@ $ ln -s myproject/docroot web
 ## Useful commands
 To start Expresso PHP:
 ```
-$ ./expresso-php <stack> start
+$ ./expresso-php start <stack>
 ```
 
 To stop Expresso PHP:
 ```
-$ ./expresso-php <stack> stop
+$ ./expresso-php stop <stack>
 ```
 
 To switch from using Nginx to Apache:
 ```
-$ ./expresso-php lemp clean
-$ ./expresso-php lamp start
+$ ./expresso-php clean lemp
+$ ./expresso-php start lamp
 ```
 
 To SSH the containers
